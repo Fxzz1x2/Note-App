@@ -1,6 +1,10 @@
 import redis from "redis";
 
-const redisClient = redis.createClient();
+const redisClient = redis.createClient({
+  host: "redis",
+  port: 6379,
+});
+
 const DEFAULT_EXPIRATION = 3600;
 
 function getOrSetCache(key, cb) {

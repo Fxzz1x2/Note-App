@@ -1,0 +1,30 @@
+version: "3"
+services:
+  note-app:
+    build: .
+    ports:
+      - "5001:5001"
+    depends_on:
+      - redis
+      - mysql
+    environment:
+      - NODE_ENV=production
+    env_file: .env
+    restart: unless-stopped
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
+  mysql:
+    image: mysql:latest
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_HOST: ${DB_HOST}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    ports:
+      - "3306:3306"  
+    env_file: .env 

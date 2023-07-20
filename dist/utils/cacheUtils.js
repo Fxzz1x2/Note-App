@@ -1,5 +1,8 @@
 import redis from "redis";
-const redisClient = redis.createClient();
+const redisClient = redis.createClient({
+    host: "redis",
+    port: 6379,
+});
 const DEFAULT_EXPIRATION = 3600;
 function getOrSetCache(key, cb) {
     return new Promise((resolve, reject) => {
@@ -10,12 +13,10 @@ function getOrSetCache(key, cb) {
                 return resolve(JSON.parse(data));
             const freshData = await cb();
             if (freshData !== null) {
-                // Only cache the data if it is not null
                 redisClient.setex(key, DEFAULT_EXPIRATION, JSON.stringify(freshData));
                 resolve(freshData);
             }
             else {
-                // Resolve with null when the data is null (Note not found in the database)
                 resolve(null);
             }
         });

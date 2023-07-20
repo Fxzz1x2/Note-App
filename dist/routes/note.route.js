@@ -44,16 +44,13 @@ router.get("/get-note/:id", verifyToken, async (req, res) => {
     const cacheKey = `note:${noteId}:${userId}`;
     try {
         const note = await getOrSetCache(cacheKey, async () => {
-            // Fetch note from the database
             const fetchedNote = await Note.findOne({ where: { id: noteId, userId } });
             if (!fetchedNote) {
-                // Note not found in the database, handle it gracefully
-                return null; // Return null when the note doesn't exist
+                return null;
             }
             return fetchedNote;
         });
         if (!note) {
-            // Note was not found in the database or doesn't belong to the user
             return res.status(404).json({ error: "Note not found" });
         }
         res.status(200).json(note);
