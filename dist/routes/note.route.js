@@ -42,5 +42,39 @@ router.get("/get-note/:id", verifyToken, async (req, res) => {
         res.status(500).json({ error: "Failed to fetch note." });
     }
 });
+router.put("/update-note/:id", verifyToken, async (req, res) => {
+    const userId = req.userId;
+    const noteId = parseInt(req.params.id);
+    const { title, content } = req.body;
+    try {
+        const note = await Note.findOne({ where: { id: noteId, userId } });
+        if (!note) {
+            return res.status(404).json({ error: "Note not found." });
+        }
+        (note.title = title), (note.content = content);
+        await note.save();
+        res.status(200).json(note);
+    }
+    catch (error) {
+        console.error("Error updating note: ", error);
+        res.status(50).json({ error: "Failed to update Note" });
+    }
+});
+router.delete("/delete-note/:id", verifyToken, async (req, res) => {
+    const userId = req.userId;
+    const noteId = parseInt(req.params.id);
+    try {
+        const note = await Note.findOne({ where: { id: noteId, userId } });
+        if (!note) {
+            return res.status(404).json({ error: "Note not found." });
+        }
+        await note.destroy();
+        res.status(200).json({ message: "Note deleted successfully." });
+    }
+    catch (error) {
+        console.error("Error deleting the note:", error);
+        res.status(500).json({ error: "Failed to delete the note." });
+    }
+});
 export default router;
 //# sourceMappingURL=note.route.js.map
