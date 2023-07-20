@@ -1,6 +1,7 @@
 import { Router } from "express";
 import verifyToken from "../middleware/verifyToken.js";
 import Note from "../models/note.model.js";
+import getOrSetCache from "../utils/cacheUtils.js";
 const router = Router();
 router.post("/create-note", verifyToken, async (req, res) => {
     const { title, content } = req.body;
@@ -16,29 +17,49 @@ router.post("/create-note", verifyToken, async (req, res) => {
 });
 router.get("/get-all-notes", verifyToken, async (req, res) => {
     const userId = req.userId;
+    const cacheKey = `notes:${userId}`;
     try {
-        const allNotes = await Note.findAll({
-            where: { userId },
+        const allNotes = await getOrSetCache(cacheKey, async () => {
+            try {
+                const notesFromDB = await Note.findAll({
+                    where: { userId },
+                });
+                return notesFromDB;
+            }
+            catch (error) {
+                console.error("Error fetching notes:", error);
+                throw new Error("Failed to fetch notes from the database.");
+            }
         });
         res.status(200).json(allNotes);
     }
     catch (error) {
-        console.error("Error fetching notes:", error);
+        console.error("Error:", error);
         res.status(500).json({ error: "Failed to fetch notes." });
     }
 });
 router.get("/get-note/:id", verifyToken, async (req, res) => {
     const userId = req.userId;
     const noteId = parseInt(req.params.id);
+    const cacheKey = `note:${noteId}:${userId}`;
     try {
-        const note = await Note.findOne({ where: { id: noteId, userId } });
+        const note = await getOrSetCache(cacheKey, async () => {
+            // Fetch note from the database
+            const fetchedNote = await Note.findOne({ where: { id: noteId, userId } });
+            if (!fetchedNote) {
+                // Note not found in the database, handle it gracefully
+                return null; // Return null when the note doesn't exist
+            }
+            return fetchedNote;
+        });
         if (!note) {
+            // Note was not found in the database or doesn't belong to the user
             return res.status(404).json({ error: "Note not found" });
         }
         res.status(200).json(note);
     }
     catch (error) {
-        console.error("Error fetching note:", error);
+        console.error("Error:", error);
         res.status(500).json({ error: "Failed to fetch note." });
     }
 });
