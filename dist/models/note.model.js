@@ -26,6 +26,10 @@ Note.init({
             key: "id",
         },
     },
+    type: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
 }, { sequelize, modelName: "note" });
 User.hasMany(Note, { foreignKey: "userId" });
 Note.belongsTo(User, { foreignKey: "userId" });

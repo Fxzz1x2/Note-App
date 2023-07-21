@@ -7,6 +7,7 @@ interface NoteAttributes {
   title: string;
   content: string;
   userId: number;
+  type: string;
 }
 
 class Note extends Model<NoteAttributes> implements NoteAttributes {
@@ -14,6 +15,7 @@ class Note extends Model<NoteAttributes> implements NoteAttributes {
   public title!: string;
   public content!: string;
   public userId!: number;
+  public type!: string;
 }
 
 Note.init(
@@ -24,6 +26,7 @@ Note.init(
       primaryKey: true,
       autoIncrement: true,
     },
+
     title: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -39,6 +42,10 @@ Note.init(
         model: User,
         key: "id",
       },
+    },
+    type: {
+      type: DataTypes.STRING,
+      allowNull: false,
     },
   },
 

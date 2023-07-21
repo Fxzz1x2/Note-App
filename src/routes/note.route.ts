@@ -8,11 +8,11 @@ const router = Router();
 const logger = Logger.getInstance();
 
 router.post("/create-note", verifyToken, async (req, res) => {
-  const { title, content } = req.body;
+  const { type, title, content } = req.body;
   const userId = req.userId;
 
   try {
-    const note = await Note.create({ title, content, userId });
+    const note = await Note.create({ title, content, userId, type });
 
     res.status(201).json(note);
   } catch (error) {
@@ -75,16 +75,28 @@ router.get("/get-note/:id", verifyToken, async (req, res) => {
 router.put("/update-note/:id", verifyToken, async (req, res) => {
   const userId = req.userId;
   const noteId = parseInt(req.params.id);
-  const { title, content } = req.body;
+  const { title, content, type } = req.body;
 
   try {
-    const note = await Note.findOne({ where: { id: noteId, userId } });
+    const note = await Note.findOne({
+      where: { id: noteId, userId },
+    });
 
     if (!note) {
       return res.status(404).json({ error: "Note not found." });
     }
 
-    (note.title = title), (note.content = content);
+    if (title !== undefined) {
+      note.title = title;
+    }
+
+    if (content !== undefined) {
+      note.content = content;
+    }
+
+    if (type !== undefined) {
+      note.type = type;
+    }
 
     await note.save();
     res.status(200).json(note);
