@@ -12,7 +12,7 @@ router.post("/create-note", verifyToken, async (req, res) => {
   const userId = req.userId;
 
   try {
-    const note = await Note.create({ title, content, userId, type });
+    const note = await Note.createNote(type, title, content, userId);
 
     res.status(201).json(note);
   } catch (error) {

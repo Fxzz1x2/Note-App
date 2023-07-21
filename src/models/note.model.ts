@@ -1,6 +1,9 @@
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from "../database.js";
 import User from "./user.model.js";
+import Logger from "../logger.js";
+
+const logger = Logger.getInstance();
 
 interface NoteAttributes {
   id: number;
@@ -16,6 +19,39 @@ class Note extends Model<NoteAttributes> implements NoteAttributes {
   public content!: string;
   public userId!: number;
   public type!: string;
+
+  static createNote(
+    type: string,
+    title: string,
+    content: string,
+    userId: number
+  ): Note {
+    const note = Note.build({ title, content, userId, type });
+
+    if (type === "personal") {
+      return new PersonalNote(note);
+    } else if (type === "work") {
+      return new WorkNote(note);
+    } else {
+      throw new Error("Invalid note type.");
+    }
+  }
+}
+
+class PersonalNote extends Note {
+  constructor(note: NoteAttributes) {
+    super();
+    Object.assign(this, note);
+    logger.log("Created Personal Note");
+  }
+}
+
+class WorkNote extends Note {
+  constructor(note: NoteAttributes) {
+    super();
+    Object.assign(this, note);
+    logger.log("Created Work Note");
+  }
 }
 
 Note.init(
