@@ -2,8 +2,10 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 import User from "./models/user.model.js";
+import Logger from "./logger.js";
 
 dotenv.config();
+const logger = Logger.getInstance();
 
 const generateAccessToken = (userId) => {
   return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: "1h" });
@@ -29,7 +31,7 @@ const login = async (req, res) => {
 
     res.json({ user });
   } catch (error) {
-    console.error("Error during login:", error);
+    logger.error("Error during login:", error);
     res.status(500).json({ error: "Internal server error." });
   }
 };
@@ -48,7 +50,7 @@ const register = async (req, res) => {
 
     res.status(201).json(user);
   } catch (err) {
-    console.error("Error during registration:", err);
+    logger.error("Error during registration:", err);
     res.status(500).json({ error: "Could not create user." });
   }
 };

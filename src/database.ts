@@ -1,5 +1,6 @@
 import { Dialect, Sequelize } from "sequelize";
 import dotenv from "dotenv";
+import Logger from "./logger.js";
 
 dotenv.config();
 
@@ -15,13 +16,16 @@ const sequelize = new Sequelize(
 );
 
 async function syncDatabase() {
+  const logger = Logger.getInstance();
+
   try {
     await sequelize.authenticate();
-    console.log("Connection has been established successfully.");
+    logger.log("Connection has been established successfully.");
+
     await sequelize.sync();
-    console.log("Models synchronized with the database.");
+    logger.log("Models synchronized with the database.");
   } catch (error) {
-    console.error("Unable to connect to the database:", error);
+    logger.error("Unable to connect to the database:", error);
   }
 }
 
