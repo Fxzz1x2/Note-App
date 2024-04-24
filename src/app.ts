@@ -15,7 +15,7 @@ app.use("/users", userRoute);
 app.use("/notes", noteRoute);
 
 syncDatabase().then(() => {
-  app.listen(process.env.PORT, () =>
-    console.log(`Server is running on port ${process.env.PORT}`)
-  );
+    app.listen(process.env.PORT, () =>
+        console.log(`Server is running on port: ${process.env.PORT}`)
+    );
 });
